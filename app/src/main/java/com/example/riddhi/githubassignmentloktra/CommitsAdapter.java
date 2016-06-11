@@ -2,6 +2,7 @@ package com.example.riddhi.githubassignmentloktra;
 
 import android.content.Context;
 import android.support.v7.widget.RecyclerView;
+import android.text.format.DateUtils;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -70,16 +71,15 @@ public class CommitsAdapter extends RecyclerView.Adapter {
         Ion.with(recentCommitsViewHolder.committerImageView)
                 .load((committerUserNameAndImageJsonObj.get("avatar_url").getAsString()));
 
-        SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd hh:mm:ss.SSS");
+        SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss'Z'");
         Date parsedDate = null;
-
         try {
             parsedDate = dateFormat.parse(committerNameJsonObject.get("date").getAsString());
         } catch (ParseException e) {
             e.printStackTrace();
         }
-        Timestamp timestamp = new java.sql.Timestamp(parsedDate.getTime());
-        recentCommitsViewHolder.commitTimeTextView.setText(committerUserNameAndImageJsonObj.get("login").getAsString()+"committed on "+ timestamp);
+//        Timestamp timestamp = new java.sql.Timestamp(parsedDate.getTime());
+        recentCommitsViewHolder.commitTimeTextView.setText(committerUserNameAndImageJsonObj.get("login").getAsString()+"committed on "+ DateUtils.getRelativeTimeSpanString(mContext, parsedDate.getTime()));
     }
 
     @Override
