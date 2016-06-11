@@ -79,7 +79,7 @@ public class CommitsAdapter extends RecyclerView.Adapter {
             e.printStackTrace();
         }
 //        Timestamp timestamp = new java.sql.Timestamp(parsedDate.getTime());
-        recentCommitsViewHolder.commitTimeTextView.setText(committerUserNameAndImageJsonObj.get("login").getAsString()+"committed on "+ DateUtils.getRelativeTimeSpanString(mContext, parsedDate.getTime()));
+        recentCommitsViewHolder.commitTimeTextView.setText(committerUserNameAndImageJsonObj.get("login").getAsString()+" committed on "+ DateUtils.getRelativeTimeSpanString(mContext, parsedDate.getTime()));
     }
 
     @Override
