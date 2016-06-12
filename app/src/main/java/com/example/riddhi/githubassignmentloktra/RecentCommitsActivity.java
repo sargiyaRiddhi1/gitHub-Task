@@ -1,5 +1,6 @@
 package com.example.riddhi.githubassignmentloktra;
 
+import android.content.Context;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.support.v7.widget.LinearLayoutManager;
@@ -8,6 +9,7 @@ import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
+import android.view.inputmethod.InputMethodManager;
 import android.widget.EditText;
 import android.widget.LinearLayout;
 import android.widget.TextView;
@@ -28,6 +30,7 @@ public class RecentCommitsActivity extends AppCompatActivity {
     TextView searchButton;
     EditText searchQueryEditText;
     CommitsAdapter commitsAdapter;
+    TextView noMatchingCommitsTextView;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -36,6 +39,7 @@ public class RecentCommitsActivity extends AppCompatActivity {
          searchBarLayout= (LinearLayout)findViewById(R.id.searchBarLayout);
          searchButton=(TextView)findViewById(id.searchButton);
          searchQueryEditText=(EditText)findViewById(id.searchQueryEditText);
+        noMatchingCommitsTextView=(TextView)findViewById(id.noMatchingCommitsTextView);
        LinearLayoutManager linearLayoutManager = new LinearLayoutManager(this);
 
        final RecyclerView commitsRecyclerView=(RecyclerView)findViewById(R.id.recyclerView);
@@ -48,8 +52,8 @@ public class RecentCommitsActivity extends AppCompatActivity {
                     @Override
                     public void onCompleted(Exception e, JsonArray result) {
                         Log.i("result", result.toString());
-                        commitHistoryJsonArray=result;
-                        filteredJsonArray=result;
+                        commitHistoryJsonArray.addAll(result);
+                        filteredJsonArray.addAll(result);
 
                         commitsAdapter=new CommitsAdapter(RecentCommitsActivity.this,filteredJsonArray);
                         commitsRecyclerView.setAdapter(commitsAdapter);
@@ -59,21 +63,34 @@ public class RecentCommitsActivity extends AppCompatActivity {
         searchButton.setOnClickListener(new View.OnClickListener() {
             public void onClick(View v) {
                 if(!searchQueryEditText.getText().toString().isEmpty()){
-                    for(int i=0;i<commitHistoryJsonArray.size();i++){
-                        JsonObject commitInfoJsonObj= (JsonObject) commitHistoryJsonArray.get(i);
-                        JsonObject committerInfoJsonObject=(JsonObject)commitInfoJsonObj.get("commit");
-                         String  commitMessage=(String) committerInfoJsonObject.get("message").getAsString();
-                        if(!commitMessage.contains(searchQueryEditText.getText().toString())){
-                            filteredJsonArray.remove(i);
-                        }
+                    InputMethodManager imm = (InputMethodManager)getSystemService(Context.INPUT_METHOD_SERVICE);
+                    imm.hideSoftInputFromWindow(searchQueryEditText.getWindowToken(),
+                            InputMethodManager.RESULT_UNCHANGED_SHOWN);
 
+                    int filterJsonArraySize=filteredJsonArray.size();
+                    for (int j = 0; j < filterJsonArraySize; j++) {
+                        filteredJsonArray.remove(0);
                     }
-                   commitsAdapter.notifyDataSetChanged();
-
+                    for (int i = 0; i < commitHistoryJsonArray.size(); i++) {
+                        JsonObject commitInfoJsonObj = (JsonObject) commitHistoryJsonArray.get(i);
+                        JsonObject committerInfoJsonObject = (JsonObject) commitInfoJsonObj.get("commit");
+                        String commitMessage = (String) committerInfoJsonObject.get("message").getAsString();
+                        if (commitMessage.contains(searchQueryEditText.getText().toString())) {
+                            filteredJsonArray.add(commitHistoryJsonArray.get(i));
+                        }
+                    }
+                    if(filteredJsonArray.size()==0){
+                        noMatchingCommitsTextView.setVisibility(View.VISIBLE);
+                    }
+                    else {
+                        noMatchingCommitsTextView.setVisibility(View.GONE);
+                    }
+                    commitsAdapter.notifyDataSetChanged();
+                    commitsRecyclerView.scrollToPosition(0);
                 }
-
             }
         });
+
 
     }
     @Override
@@ -95,6 +112,12 @@ public class RecentCommitsActivity extends AppCompatActivity {
             }
             else {
                 searchBarLayout.setVisibility(View.GONE);
+                for (int i=0;i<filteredJsonArray.size();i++){
+                    filteredJsonArray.remove(0);
+                }
+                filteredJsonArray.addAll(commitHistoryJsonArray);
+                commitsAdapter.notifyDataSetChanged();
+
             }
 
         }

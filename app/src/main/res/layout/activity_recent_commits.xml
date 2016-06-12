@@ -16,7 +16,7 @@
         android:layout_height="wrap_content"
         android:orientation="horizontal"
         android:weightSum="1"
-        android:layout_above="@+id/recyclerView"
+        android:layout_above="@+id/noMatchingCommitsTextView"
         android:visibility="gone"
         android:id="@+id/searchBarLayout">
         <EditText
@@ -43,10 +43,20 @@
             android:id="@+id/searchButton"/>
 
     </LinearLayout>
+    <TextView
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="No matching commits found."
+        android:id="@+id/noMatchingCommitsTextView"
+        android:layout_above="@+id/recyclerView"
+        android:gravity="center_horizontal"
+        android:visibility="gone"/>
 
     <android.support.v7.widget.RecyclerView
         android:id="@+id/recyclerView"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        tools:context="com.example.riddhi.githubassignmentloktra.RecentCommitsActivity"/>
+        tools:context="com.example.riddhi.githubassignmentloktra.RecentCommitsActivity"
+        android:layout_above="@+id/noMatchingCommitsTextView"/>
+
 </LinearLayout>
